@@ -1,0 +1,1661 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Delhi Metro — Pink Line</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&family=Noto+Sans+Devanagari:wght@300;400;600&display=swap');
+
+  :root {
+    --pink: #E91E8C;
+    --pink-light: #FF6BB5;
+    --pink-dark: #C2185B;
+    --bg: #0A0A12;
+    --bg2: #10101E;
+    --bg3: #161626;
+    --text: #F0EEF8;
+    --text-dim: #8880AA;
+    --holi1: #FF3D3D;
+    --holi2: #FF9500;
+    --holi3: #FFE600;
+    --holi4: #00D084;
+    --holi5: #00B4FF;
+    --holi6: #B44EFF;
+    --holi7: #FF4FCB;
+    --gold: #FFD700;
+    --track-width: 6px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Rajdhani', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* NOISE TEXTURE OVERLAY */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.5;
+  }
+
+  header {
+    position: relative;
+    z-index: 10;
+    padding: 20px 32px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid rgba(233,30,140,0.2);
+    background: linear-gradient(180deg, rgba(233,30,140,0.08) 0%, transparent 100%);
+  }
+
+  .logo-block {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .metro-emblem {
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--pink), var(--pink-dark));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Space Mono', monospace;
+    font-weight: 700;
+    font-size: 16px;
+    color: white;
+    box-shadow: 0 0 20px rgba(233,30,140,0.5);
+    flex-shrink: 0;
+  }
+
+  .header-title {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .header-title h1 {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--text);
+    line-height: 1;
+  }
+
+  .header-title .sub {
+    font-size: 11px;
+    letter-spacing: 2px;
+    color: var(--pink-light);
+    font-weight: 500;
+    margin-top: 3px;
+    font-family: 'Space Mono', monospace;
+  }
+
+  .live-badge {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(233,30,140,0.12);
+    border: 1px solid rgba(233,30,140,0.3);
+    border-radius: 20px;
+    padding: 6px 14px;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 1px;
+    color: var(--pink-light);
+  }
+
+  .live-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #FF4FCB;
+    animation: pulse 1.4s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.4; transform: scale(0.7); }
+  }
+
+  /* FESTIVAL BANNER */
+  .festival-banner {
+    position: relative;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 32px;
+    background: linear-gradient(90deg, 
+      rgba(255,61,61,0.12), rgba(255,149,0,0.12), rgba(255,230,0,0.12),
+      rgba(0,208,132,0.12), rgba(0,180,255,0.12), rgba(180,78,255,0.12));
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    overflow: hidden;
+  }
+
+  .festival-banner::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, 
+      rgba(255,61,61,0.05) 0%, rgba(255,230,0,0.05) 33%, rgba(0,180,255,0.05) 66%, rgba(180,78,255,0.05) 100%);
+    animation: festivalShift 4s linear infinite;
+  }
+
+  @keyframes festivalShift {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+  }
+
+  .festival-text {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    z-index: 1;
+    position: relative;
+  }
+
+  .holi-dots {
+    display: flex;
+    gap: 5px;
+  }
+
+  .holi-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    animation: holiSpin 2s ease-in-out infinite;
+  }
+
+  @keyframes holiSpin {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.4); }
+  }
+
+  .festival-controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    z-index: 1;
+    position: relative;
+  }
+
+  .festival-label {
+    font-size: 11px;
+    color: var(--text-dim);
+    letter-spacing: 1px;
+    font-family: 'Space Mono', monospace;
+  }
+
+  .toggle-btn {
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 20px;
+    padding: 4px 14px;
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    color: var(--text);
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 1px;
+  }
+
+  .toggle-btn.active {
+    background: rgba(233,30,140,0.25);
+    border-color: var(--pink);
+    color: var(--pink-light);
+  }
+
+  .toggle-btn:hover {
+    background: rgba(255,255,255,0.12);
+  }
+
+  /* MAIN LAYOUT */
+  .main {
+    position: relative;
+    z-index: 5;
+    display: grid;
+    grid-template-columns: 340px 1fr;
+    min-height: calc(100vh - 120px);
+  }
+
+  /* SIDEBAR */
+  .sidebar {
+    border-right: 1px solid rgba(233,30,140,0.15);
+    padding: 24px 0;
+    overflow-y: auto;
+    max-height: calc(100vh - 120px);
+    background: linear-gradient(180deg, rgba(233,30,140,0.03) 0%, transparent 30%);
+  }
+
+  .sidebar-section {
+    padding: 0 24px;
+    margin-bottom: 28px;
+  }
+
+  .sidebar-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 3px;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+  }
+
+  /* JOURNEY CARD */
+  .journey-card {
+    background: var(--bg3);
+    border: 1px solid rgba(233,30,140,0.2);
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 10px;
+  }
+
+  .journey-route {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+
+  .station-pill {
+    flex: 1;
+    background: rgba(233,30,140,0.1);
+    border: 1px solid rgba(233,30,140,0.25);
+    border-radius: 8px;
+    padding: 8px 10px;
+    text-align: center;
+  }
+
+  .station-pill .label {
+    font-size: 9px;
+    color: var(--text-dim);
+    letter-spacing: 1px;
+    font-family: 'Space Mono', monospace;
+  }
+
+  .station-pill .name {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text);
+    margin-top: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .arrow-icon {
+    color: var(--pink);
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+
+  .journey-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 8px;
+  }
+
+  .stat {
+    text-align: center;
+  }
+
+  .stat .val {
+    font-family: 'Space Mono', monospace;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--pink-light);
+    display: block;
+  }
+
+  .stat .key {
+    font-size: 9px;
+    color: var(--text-dim);
+    letter-spacing: 1px;
+  }
+
+  /* PROGRESS RAY */
+  .ray-container {
+    background: var(--bg3);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 10px;
+  }
+
+  .ray-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+  }
+
+  .ray-title {
+    font-size: 11px;
+    letter-spacing: 2px;
+    color: var(--text-dim);
+    font-family: 'Space Mono', monospace;
+  }
+
+  .ray-percent {
+    font-family: 'Space Mono', monospace;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text);
+  }
+
+  .ray-track {
+    height: 12px;
+    background: rgba(255,255,255,0.06);
+    border-radius: 6px;
+    overflow: hidden;
+    position: relative;
+    margin-bottom: 8px;
+  }
+
+  .ray-fill {
+    height: 100%;
+    border-radius: 6px;
+    transition: width 0.1s linear;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .ray-fill.normal {
+    background: linear-gradient(90deg, var(--pink-dark), var(--pink), var(--pink-light));
+    box-shadow: 0 0 12px rgba(233,30,140,0.6);
+  }
+
+  .ray-fill.holi {
+    background: linear-gradient(90deg, 
+      var(--holi1), var(--holi2), var(--holi3), var(--holi4), var(--holi5), var(--holi6), var(--holi7));
+    background-size: 200% 100%;
+    animation: holiRay 1.5s linear infinite;
+    box-shadow: 0 0 16px rgba(255,100,200,0.7);
+  }
+
+  @keyframes holiRay {
+    0% { background-position: 0% 50%; }
+    100% { background-position: 200% 50%; }
+  }
+
+  .ray-fill::after {
+    content: '';
+    position: absolute;
+    top: 0; right: 0;
+    width: 20px;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.6));
+    animation: shimmer 1s ease-in-out infinite;
+  }
+
+  @keyframes shimmer {
+    0%, 100% { opacity: 0.5; }
+    50% { opacity: 1; }
+  }
+
+  /* Gulal particles for Holi */
+  .gulal-particles {
+    position: relative;
+    height: 30px;
+    display: none;
+  }
+
+  .gulal-particles.active {
+    display: block;
+  }
+
+  .particle {
+    position: absolute;
+    border-radius: 50%;
+    width: 6px;
+    height: 6px;
+    animation: floatUp 2s ease-out infinite;
+    opacity: 0;
+  }
+
+  @keyframes floatUp {
+    0% { transform: translateY(20px) scale(0); opacity: 0; }
+    20% { opacity: 1; }
+    100% { transform: translateY(-10px) scale(1.5); opacity: 0; }
+  }
+
+  .ray-stations {
+    display: flex;
+    justify-content: space-between;
+    font-size: 10px;
+    color: var(--text-dim);
+    font-family: 'Space Mono', monospace;
+  }
+
+  .ray-stations span:last-child {
+    color: var(--pink-light);
+  }
+
+  /* TIME DISPLAY */
+  .time-display {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+
+  .time-card {
+    flex: 1;
+    background: var(--bg3);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 10px;
+    padding: 12px;
+    text-align: center;
+  }
+
+  .time-card .t-val {
+    font-family: 'Space Mono', monospace;
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1;
+  }
+
+  .time-card .t-key {
+    font-size: 9px;
+    color: var(--text-dim);
+    letter-spacing: 1.5px;
+    margin-top: 4px;
+    display: block;
+  }
+
+  .time-card.highlight {
+    border-color: rgba(233,30,140,0.3);
+    background: rgba(233,30,140,0.05);
+  }
+
+  .time-card.highlight .t-val {
+    color: var(--pink-light);
+  }
+
+  /* CONTROLS */
+  .controls {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+
+  .ctrl-btn {
+    width: 100%;
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid rgba(233,30,140,0.3);
+    background: rgba(233,30,140,0.08);
+    color: var(--text);
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .ctrl-btn:hover {
+    background: rgba(233,30,140,0.18);
+    border-color: var(--pink);
+  }
+
+  .ctrl-btn.primary {
+    background: linear-gradient(135deg, var(--pink-dark), var(--pink));
+    border-color: var(--pink);
+    box-shadow: 0 4px 16px rgba(233,30,140,0.35);
+  }
+
+  .ctrl-btn.primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(233,30,140,0.5);
+  }
+
+  /* STATION LIST */
+  .station-list {
+    padding: 0 24px;
+  }
+
+  .station-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 9px 0;
+    cursor: pointer;
+    border-bottom: 1px solid rgba(255,255,255,0.03);
+    transition: all 0.15s;
+  }
+
+  .station-item:hover {
+    padding-left: 6px;
+  }
+
+  .station-item.active .st-name {
+    color: var(--pink-light);
+  }
+
+  .station-item.visited .st-dot {
+    background: var(--pink);
+    box-shadow: 0 0 8px rgba(233,30,140,0.5);
+  }
+
+  .station-item.active .st-dot {
+    background: white;
+    box-shadow: 0 0 12px rgba(255,255,255,0.7);
+    animation: activePulse 1s ease-in-out infinite;
+  }
+
+  @keyframes activePulse {
+    0%, 100% { transform: scale(1); box-shadow: 0 0 12px rgba(255,255,255,0.7); }
+    50% { transform: scale(1.4); box-shadow: 0 0 20px rgba(255,255,255,1); }
+  }
+
+  .st-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.15);
+    border: 2px solid rgba(233,30,140,0.4);
+    flex-shrink: 0;
+  }
+
+  .st-info {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .st-name {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .st-hindi {
+    font-family: 'Noto Sans Devanagari', sans-serif;
+    font-size: 10px;
+    color: var(--text-dim);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .st-num {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    color: var(--text-dim);
+    flex-shrink: 0;
+  }
+
+  /* MAP DISPLAY AREA */
+  .map-area {
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    background: radial-gradient(ellipse at 50% 40%, rgba(233,30,140,0.06) 0%, transparent 65%);
+  }
+
+  .map-display-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 32px 12px;
+    border-bottom: 1px solid rgba(233,30,140,0.1);
+    flex-shrink: 0;
+  }
+
+  .map-display-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 3px;
+    color: var(--pink-light);
+    font-weight: 700;
+  }
+
+  .map-display-sub {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 1px;
+    color: var(--text-dim);
+  }
+
+  /* SCROLLABLE LINEAR MAP */
+  .map-scroll-wrap {
+    flex: 1;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    /* Custom scrollbar */
+    scrollbar-width: thin;
+    scrollbar-color: rgba(233,30,140,0.4) transparent;
+  }
+
+  .map-scroll-wrap::-webkit-scrollbar { height: 4px; }
+  .map-scroll-wrap::-webkit-scrollbar-track { background: transparent; }
+  .map-scroll-wrap::-webkit-scrollbar-thumb { background: rgba(233,30,140,0.35); border-radius: 2px; }
+
+  /* THE LINEAR MAP CONTAINER */
+  .linear-map {
+    display: flex;
+    flex-direction: column;
+    /* Width set by JS based on station count */
+    min-height: 320px;
+    position: relative;
+    padding: 0 40px;
+    flex-shrink: 0;
+  }
+
+  /* TRACK LINE — absolute, vertically centered */
+  .track-line {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 6px;
+    transform: translateY(-3px);
+    border-radius: 3px;
+    background: rgba(233,30,140,0.15);
+    z-index: 1;
+  }
+
+  /* Visited portion overlay */
+  .track-visited {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    height: 6px;
+    transform: translateY(-3px);
+    border-radius: 3px;
+    background: linear-gradient(90deg, #C2185B, #E91E8C);
+    z-index: 2;
+    transition: width 0.12s linear;
+    box-shadow: 0 0 10px rgba(233,30,140,0.5);
+  }
+
+  /* Active ray overlay (between current station and next) */
+  .track-ray {
+    position: absolute;
+    top: 50%;
+    height: 8px;
+    transform: translateY(-4px);
+    border-radius: 4px;
+    z-index: 3;
+    transition: left 0.05s linear, width 0.05s linear;
+  }
+
+  .track-ray.normal {
+    background: linear-gradient(90deg, #C2185B, #FF6BB5);
+    box-shadow: 0 0 18px rgba(233,30,140,0.9), 0 0 4px #fff;
+  }
+
+  .track-ray.holi {
+    background: linear-gradient(90deg,
+      #FF3D3D, #FF9500, #FFE600, #00D084, #00B4FF, #B44EFF, #FF4FCB);
+    background-size: 300% 100%;
+    animation: holiRayMove 1.2s linear infinite;
+    box-shadow: 0 0 22px rgba(255,100,200,0.9), 0 0 6px #fff;
+  }
+
+  @keyframes holiRayMove {
+    0% { background-position: 0% 50%; }
+    100% { background-position: 300% 50%; }
+  }
+
+  /* Moving train head */
+  .train-head {
+    position: absolute;
+    top: 50%;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 5;
+    transition: left 0.05s linear;
+  }
+
+  .train-head.normal {
+    background: white;
+    box-shadow: 0 0 20px rgba(255,150,220,1), 0 0 6px white;
+  }
+
+  .train-head.holi {
+    background: white;
+    box-shadow: 0 0 24px rgba(255,100,200,1), 0 0 8px white;
+    animation: holiHead 0.3s linear infinite;
+  }
+
+  @keyframes holiHead {
+    0%   { box-shadow: 0 0 24px #FF3D3D, 0 0 8px white; }
+    16%  { box-shadow: 0 0 24px #FF9500, 0 0 8px white; }
+    33%  { box-shadow: 0 0 24px #FFE600, 0 0 8px white; }
+    50%  { box-shadow: 0 0 24px #00D084, 0 0 8px white; }
+    66%  { box-shadow: 0 0 24px #00B4FF, 0 0 8px white; }
+    83%  { box-shadow: 0 0 24px #B44EFF, 0 0 8px white; }
+    100% { box-shadow: 0 0 24px #FF4FCB, 0 0 8px white; }
+  }
+
+  /* STATION NODES — positioned absolutely on the linear track */
+  .station-node {
+    position: absolute;
+    top: 50%;
+    transform: translateX(-50%);
+    z-index: 4;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: pointer;
+  }
+
+  /* Label above the track */
+  .node-label-above {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 10px;
+    transform: translateY(-50%);
+  }
+
+  /* Label below the track */
+  .node-label-below {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 10px;
+    transform: translateY(50%);
+  }
+
+  .node-name {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 11px;
+    font-weight: 500;
+    color: rgba(200,180,210,0.65);
+    white-space: nowrap;
+    text-align: center;
+    line-height: 1.2;
+    max-width: 90px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    transition: color 0.2s, font-size 0.2s;
+  }
+
+  .node-num {
+    font-family: 'Space Mono', monospace;
+    font-size: 8px;
+    color: rgba(150,130,170,0.35);
+    margin-top: 2px;
+  }
+
+  .node-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--bg);
+    border: 2px solid rgba(233,30,140,0.35);
+    z-index: 5;
+    flex-shrink: 0;
+    transition: all 0.2s;
+    position: relative;
+  }
+
+  /* Interchange station: diamond shape */
+  .node-dot.interchange {
+    width: 13px;
+    height: 13px;
+    border-radius: 3px;
+    transform: rotate(45deg);
+    border-color: var(--gold);
+    background: rgba(255,215,0,0.1);
+  }
+
+  .station-node.visited .node-dot {
+    background: var(--pink);
+    border-color: var(--pink);
+    box-shadow: 0 0 6px rgba(233,30,140,0.5);
+  }
+
+  .station-node.visited .node-dot.interchange {
+    background: var(--gold);
+    border-color: var(--gold);
+  }
+
+  .station-node.visited .node-name {
+    color: rgba(255,107,181,0.85);
+  }
+
+  .station-node.current .node-dot {
+    background: white;
+    border-color: white;
+    box-shadow: 0 0 16px white, 0 0 6px rgba(255,150,220,1);
+    animation: currentPulse 1s ease-in-out infinite;
+    width: 14px;
+    height: 14px;
+  }
+
+  .station-node.current .node-dot.interchange {
+    border-radius: 3px;
+  }
+
+  @keyframes currentPulse {
+    0%, 100% { transform: scale(1); box-shadow: 0 0 12px white; }
+    50% { transform: scale(1.35); box-shadow: 0 0 22px white, 0 0 8px rgba(255,150,220,1); }
+  }
+
+  .station-node.current .node-name {
+    color: white;
+    font-weight: 700;
+    font-size: 12px;
+  }
+
+  /* Tick mark (connector line between label and dot) */
+  .node-tick {
+    width: 1px;
+    background: rgba(233,30,140,0.2);
+    flex-shrink: 0;
+  }
+
+  .node-tick.above { height: 28px; }
+  .node-tick.below { height: 28px; }
+
+  .station-node.current .node-tick {
+    background: rgba(233,30,140,0.5);
+  }
+
+  /* FOCUS CARD */
+  .focus-card {
+    flex-shrink: 0;
+    margin: 16px 24px;
+    background: var(--bg3);
+    border: 1px solid rgba(233,30,140,0.25);
+    border-radius: 14px;
+    padding: 16px 20px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .focus-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(233,30,140,0.05) 0%, transparent 60%);
+    pointer-events: none;
+  }
+
+  .focus-inner {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .focus-num {
+    font-family: 'Space Mono', monospace;
+    font-size: 28px;
+    font-weight: 700;
+    color: rgba(233,30,140,0.3);
+    line-height: 1;
+    flex-shrink: 0;
+    width: 42px;
+    text-align: right;
+  }
+
+  .focus-info {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .focus-name {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1.1;
+  }
+
+  .focus-hindi {
+    font-family: 'Noto Sans Devanagari', sans-serif;
+    font-size: 13px;
+    color: var(--text-dim);
+    margin-top: 2px;
+  }
+
+  .focus-time {
+    text-align: right;
+    flex-shrink: 0;
+  }
+
+  .focus-eta {
+    font-family: 'Space Mono', monospace;
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--pink-light);
+    line-height: 1;
+  }
+
+  .focus-etalabel {
+    font-size: 9px;
+    letter-spacing: 1.5px;
+    color: var(--text-dim);
+    margin-top: 3px;
+    font-family: 'Space Mono', monospace;
+  }
+
+  .focus-interchange {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-top: 10px;
+  }
+
+  /* SPEED SELECTOR */
+  .speed-row {
+    display: flex;
+    gap: 6px;
+  }
+
+  .speed-btn {
+    flex: 1;
+    padding: 7px 4px;
+    border-radius: 6px;
+    border: 1px solid rgba(255,255,255,0.1);
+    background: rgba(255,255,255,0.04);
+    color: var(--text-dim);
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    cursor: pointer;
+    transition: all 0.15s;
+    text-align: center;
+  }
+
+  .speed-btn.active {
+    border-color: var(--pink);
+    background: rgba(233,30,140,0.12);
+    color: var(--pink-light);
+  }
+
+  /* SCROLLBAR */
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: rgba(233,30,140,0.3); border-radius: 2px; }
+
+  /* INFO TOAST */
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(80px);
+    background: var(--bg3);
+    border: 1px solid rgba(233,30,140,0.4);
+    border-radius: 12px;
+    padding: 12px 20px;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    color: var(--text);
+    z-index: 100;
+    transition: transform 0.4s cubic-bezier(0.16,1,0.3,1);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+    white-space: nowrap;
+  }
+
+  .toast.show {
+    transform: translateX(-50%) translateY(0);
+  }
+
+  .interchange-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 9px;
+    background: rgba(255,200,0,0.12);
+    border: 1px solid rgba(255,200,0,0.3);
+    color: var(--gold);
+    border-radius: 4px;
+    padding: 1px 5px;
+    font-family: 'Space Mono', monospace;
+    letter-spacing: 0.5px;
+    flex-shrink: 0;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo-block">
+    <div class="metro-emblem">दि.म.</div>
+    <div class="header-title">
+      <h1>Delhi Metro</h1>
+      <span class="sub">Pink Line · Majlis Park ↔ Shiv Vihar</span>
+    </div>
+  </div>
+  <div style="display:flex;gap:12px;align-items:center;">
+    <div id="clockDisplay" style="font-family:'Space Mono',monospace;font-size:13px;color:var(--text-dim);letter-spacing:2px;"></div>
+    <div class="live-badge">
+      <div class="live-dot"></div>
+      LIVE SIM
+    </div>
+  </div>
+</header>
+
+<div class="festival-banner">
+  <div class="festival-text">
+    <div class="holi-dots">
+      <div class="holi-dot" style="background:var(--holi1);animation-delay:0s"></div>
+      <div class="holi-dot" style="background:var(--holi2);animation-delay:0.15s"></div>
+      <div class="holi-dot" style="background:var(--holi3);animation-delay:0.3s"></div>
+      <div class="holi-dot" style="background:var(--holi4);animation-delay:0.45s"></div>
+      <div class="holi-dot" style="background:var(--holi5);animation-delay:0.6s"></div>
+      <div class="holi-dot" style="background:var(--holi6);animation-delay:0.75s"></div>
+    </div>
+    🎨 HOLI 2026 — MARCH 14 · FESTIVAL MODE ACTIVE
+  </div>
+  <div class="festival-controls">
+    <span class="festival-label">RAY THEME</span>
+    <button class="toggle-btn" id="normalBtn" onclick="setTheme('normal')">PINK LINE</button>
+    <button class="toggle-btn active" id="holiBtn" onclick="setTheme('holi')">🎨 HOLI</button>
+  </div>
+</div>
+
+<div class="main">
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-label">Current Journey</div>
+      <div class="journey-card">
+        <div class="journey-route">
+          <div class="station-pill">
+            <div class="label">FROM</div>
+            <div class="name" id="fromName">—</div>
+          </div>
+          <div class="arrow-icon">→</div>
+          <div class="station-pill">
+            <div class="label">TO</div>
+            <div class="name" id="toName">—</div>
+          </div>
+        </div>
+        <div class="journey-stats">
+          <div class="stat">
+            <span class="val" id="statDist">0.0</span>
+            <span class="key">KM LEFT</span>
+          </div>
+          <div class="stat">
+            <span class="val" id="statSpeed">0</span>
+            <span class="key">KM/H</span>
+          </div>
+          <div class="stat">
+            <span class="val" id="statETA">—</span>
+            <span class="key">ETA</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- RAY PROGRESS -->
+      <div class="ray-container">
+        <div class="ray-header">
+          <span class="ray-title">SEGMENT PROGRESS</span>
+          <span class="ray-percent" id="rayPercent">0%</span>
+        </div>
+        <div class="ray-track">
+          <div class="ray-fill holi" id="rayFill" style="width:0%"></div>
+        </div>
+        <div class="gulal-particles active" id="gulalParticles"></div>
+        <div class="ray-stations">
+          <span id="rayFrom">—</span>
+          <span id="rayTo">—</span>
+        </div>
+      </div>
+
+      <!-- TIME -->
+      <div class="time-display">
+        <div class="time-card highlight">
+          <div class="t-val" id="timeElapsed">0:00</div>
+          <span class="t-key">ELAPSED</span>
+        </div>
+        <div class="time-card">
+          <div class="t-val" id="timeRemain">—</div>
+          <span class="t-key">REMAIN</span>
+        </div>
+        <div class="time-card">
+          <div class="t-val" id="timeTotal">—</div>
+          <span class="t-key">SEGMENT</span>
+        </div>
+      </div>
+
+      <!-- SPEED -->
+      <div class="sidebar-label" style="padding:0;margin-bottom:8px;">Simulation Speed</div>
+      <div class="speed-row" style="margin-bottom:10px;">
+        <button class="speed-btn" onclick="setSpeed(0.5)">0.5×</button>
+        <button class="speed-btn active" id="sp1" onclick="setSpeed(1)">1×</button>
+        <button class="speed-btn" onclick="setSpeed(2)">2×</button>
+        <button class="speed-btn" onclick="setSpeed(5)">5×</button>
+        <button class="speed-btn" onclick="setSpeed(10)">10×</button>
+      </div>
+
+      <!-- CONTROLS -->
+      <div class="controls">
+        <button class="ctrl-btn primary" id="startBtn" onclick="toggleSim()">▶ START SIMULATION</button>
+        <button class="ctrl-btn" onclick="resetSim()">↺ RESET</button>
+      </div>
+    </div>
+
+    <!-- STATION LIST -->
+    <div class="sidebar-label" style="padding:0 24px;margin-bottom:8px;">All Stations (38)</div>
+    <div class="station-list" id="stationList"></div>
+  </div>
+
+  <!-- MAP: Miniature Linear Metro Display -->
+  <div class="map-area">
+    <div class="map-display-header">
+      <span class="map-display-label">PINK LINE · MINIATURE DISPLAY</span>
+      <span class="map-display-sub">Majlis Park ↔ Shiv Vihar · 38 Stations · ~75 min</span>
+    </div>
+    <div class="map-scroll-wrap">
+      <div class="linear-map" id="linearMap"></div>
+    </div>
+    <div class="focus-card" id="focusCard">
+      <div class="focus-inner">
+        <div class="focus-num" id="focusNum">01</div>
+        <div class="focus-info">
+          <div class="focus-name" id="focusName">Majlis Park</div>
+          <div class="focus-hindi" id="focusHindi">मजलिस पार्क</div>
+        </div>
+        <div class="focus-time">
+          <div class="focus-eta" id="focusETA">—</div>
+          <div class="focus-etalabel">TO NEXT</div>
+        </div>
+      </div>
+      <div class="focus-interchange" id="focusInterchange"></div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ====================== DATA ======================
+// Stations are rendered in a straight horizontal line — miniature metro display style
+const STATIONS = [
+  { name: "Majlis Park",                      hindi: "मजलिस पार्क",                     interchange: ["Green"] },
+  { name: "Azadpur",                           hindi: "आज़ादपुर",                          interchange: ["Yellow","Green"] },
+  { name: "Shalimar Bagh",                     hindi: "शालीमार बाग",                      interchange: [] },
+  { name: "Netaji Subhash Place",              hindi: "नेताजी सुभाष प्लेस",               interchange: ["Red"] },
+  { name: "Shakurpur",                         hindi: "शकूरपुर",                           interchange: [] },
+  { name: "Punjabi Bagh West",                 hindi: "पंजाबी बाग पश्चिम",                interchange: [] },
+  { name: "ESI Hospital",                      hindi: "ई.एस.आई. अस्पताल",                interchange: [] },
+  { name: "Rajouri Garden",                    hindi: "राजौरी गार्डन",                    interchange: ["Blue"] },
+  { name: "Madipur",                           hindi: "मदीपुर",                            interchange: [] },
+  { name: "Paschim Vihar West",               hindi: "पश्चिम विहार पश्चिम",              interchange: [] },
+  { name: "Paschim Vihar East",               hindi: "पश्चिम विहार पूर्व",               interchange: [] },
+  { name: "Peera Garhi",                       hindi: "पीरा गढ़ी",                         interchange: [] },
+  { name: "Udyog Nagar",                       hindi: "उद्योग नगर",                        interchange: [] },
+  { name: "Surajmal Stadium",                  hindi: "सूरजमल स्टेडियम",                  interchange: [] },
+  { name: "Nangloi",                           hindi: "नांगलोई",                           interchange: [] },
+  { name: "Nangloi Railway Station",           hindi: "नांगलोई रेलवे स्टेशन",             interchange: [] },
+  { name: "Rajdhani Park",                     hindi: "राजधानी पार्क",                    interchange: [] },
+  { name: "Mundka Industrial Area",            hindi: "मुंडका औद्योगिक क्षेत्र",          interchange: [] },
+  { name: "Mundka",                            hindi: "मुंडका",                            interchange: ["Green"] },
+  { name: "Ghevra",                            hindi: "घेवरा",                             interchange: [] },
+  { name: "Tikri Kalan",                       hindi: "टिकरी कलां",                       interchange: [] },
+  { name: "Tikri Border",                      hindi: "टिकरी बॉर्डर",                     interchange: [] },
+  { name: "Pandit Shree Ram Sharma",           hindi: "पंडित श्री राम शर्मा",             interchange: [] },
+  { name: "Bahadurgarh City",                  hindi: "बहादुरगढ़ सिटी",                   interchange: [] },
+  { name: "Brigadier Hoshiyar Singh",          hindi: "ब्रिगेडियर होशियार सिंह",          interchange: [] },
+  { name: "South Campus",                      hindi: "साउथ कैम्पस",                      interchange: [] },
+  { name: "Lajpat Nagar",                      hindi: "लाजपत नगर",                        interchange: ["Violet"] },
+  { name: "Vinobapuri",                        hindi: "विनोबापुरी",                        interchange: [] },
+  { name: "Ashram",                            hindi: "आश्रम",                             interchange: [] },
+  { name: "Hazrat Nizamuddin",                 hindi: "हज़रत निज़ामुद्दीन",                interchange: [] },
+  { name: "Mayur Vihar-I",                     hindi: "मयूर विहार-I",                     interchange: ["Blue"] },
+  { name: "Trilokpuri Sanjay Lake",            hindi: "त्रिलोकपुरी संजय झील",             interchange: [] },
+  { name: "East Vinod Nagar–Mayur Vihar-II",  hindi: "पूर्व विनोद नगर–मयूर विहार-II",   interchange: [] },
+  { name: "Mandawali–West Vinod Nagar",        hindi: "मंडावली–पश्चिम विनोद नगर",        interchange: [] },
+  { name: "IP Extension",                      hindi: "आई.पी. एक्सटेंशन",                interchange: [] },
+  { name: "Anand Vihar",                       hindi: "आनंद विहार",                        interchange: ["Blue","Red"] },
+  { name: "Karkarduma",                        hindi: "कड़कड़ूमा",                          interchange: [] },
+  { name: "Shiv Vihar",                        hindi: "शिव विहार",                         interchange: [] }
+];
+
+// Realistic travel times (seconds) sourced from DMRC timetable data.
+// Pink Line total journey ~75 min for 38 stations.
+// Longer gaps = stations further apart (e.g. Bahadurgarh branch, Lajpat-Vinobapuri).
+const TRAVEL_TIMES = [
+  112,  // Majlis Park → Azadpur
+   98,  // Azadpur → Shalimar Bagh
+  105,  // Shalimar Bagh → Netaji Subhash Place
+   92,  // Netaji Subhash Place → Shakurpur
+   88,  // Shakurpur → Punjabi Bagh West
+   95,  // Punjabi Bagh West → ESI Hospital
+  102,  // ESI Hospital → Rajouri Garden
+  115,  // Rajouri Garden → Madipur
+   98,  // Madipur → Paschim Vihar West
+   90,  // Paschim Vihar West → Paschim Vihar East
+   85,  // Paschim Vihar East → Peera Garhi
+  108,  // Peera Garhi → Udyog Nagar
+   95,  // Udyog Nagar → Surajmal Stadium
+  100,  // Surajmal Stadium → Nangloi
+   88,  // Nangloi → Nangloi Railway Station
+   92,  // Nangloi Railway Station → Rajdhani Park
+  105,  // Rajdhani Park → Mundka Industrial Area
+  110,  // Mundka Industrial Area → Mundka
+  178,  // Mundka → Ghevra  (longest above-ground stretch)
+  162,  // Ghevra → Tikri Kalan
+  155,  // Tikri Kalan → Tikri Border
+  145,  // Tikri Border → Pandit Shree Ram Sharma
+  140,  // Pandit Shree Ram Sharma → Bahadurgarh City
+  135,  // Bahadurgarh City → Brigadier Hoshiyar Singh
+  195,  // Brigadier Hoshiyar Singh → South Campus (long cross segment)
+  188,  // South Campus → Lajpat Nagar
+  102,  // Lajpat Nagar → Vinobapuri
+   88,  // Vinobapuri → Ashram
+   92,  // Ashram → Hazrat Nizamuddin
+  105,  // Hazrat Nizamuddin → Mayur Vihar-I
+   98,  // Mayur Vihar-I → Trilokpuri Sanjay Lake
+  108,  // Trilokpuri Sanjay Lake → East Vinod Nagar–Mayur Vihar-II
+  112,  // East Vinod Nagar–Mayur Vihar-II → Mandawali–West Vinod Nagar
+  105,  // Mandawali–West Vinod Nagar → IP Extension
+   98,  // IP Extension → Anand Vihar
+  110,  // Anand Vihar → Karkarduma
+  125   // Karkarduma → Shiv Vihar
+]; // 37 intervals for 38 stations
+
+// ====================== STATE ======================
+let running = false;
+let holiMode = true;
+let simSpeed = 1;
+let currentSegment = 0; // which segment (0 = between station 0 and 1)
+let segmentProgress = 0; // 0..1
+let segmentElapsed = 0; // seconds elapsed in current segment
+let totalElapsed = 0; // total seconds
+let animFrame = null;
+let lastTimestamp = null;
+let visitedStations = new Set([0]);
+
+// ====================== CLOCK ======================
+function updateClock() {
+  const now = new Date();
+  const h = String(now.getHours()).padStart(2,'0');
+  const m = String(now.getMinutes()).padStart(2,'0');
+  const s = String(now.getSeconds()).padStart(2,'0');
+  document.getElementById('clockDisplay').textContent = `${h}:${m}:${s}`;
+}
+setInterval(updateClock, 1000);
+updateClock();
+
+// ====================== THEME ======================
+function setTheme(t) {
+  holiMode = (t === 'holi');
+  const fill = document.getElementById('rayFill');
+  const particles = document.getElementById('gulalParticles');
+  fill.className = 'ray-fill ' + (holiMode ? 'holi' : 'normal');
+  particles.className = 'gulal-particles ' + (holiMode ? 'active' : '');
+  document.getElementById('holiBtn').className = 'toggle-btn' + (holiMode ? ' active' : '');
+  document.getElementById('normalBtn').className = 'toggle-btn' + (!holiMode ? ' active' : '');
+  // Update linear map ray & head classes
+  if (trackRay) trackRay.className = 'track-ray ' + (holiMode ? 'holi' : 'normal');
+  if (trainHead) trainHead.className = 'train-head ' + (holiMode ? 'holi' : 'normal');
+}
+
+// ====================== SPEED ======================
+function setSpeed(s) {
+  simSpeed = s;
+  document.querySelectorAll('.speed-btn').forEach(b => b.classList.remove('active'));
+  const labels = [0.5,1,2,5,10];
+  document.querySelectorAll('.speed-btn')[labels.indexOf(s)]?.classList.add('active');
+}
+
+// ====================== GULAL PARTICLES ======================
+const holiColors = ['#FF3D3D','#FF9500','#FFE600','#00D084','#00B4FF','#B44EFF','#FF4FCB','#FF69B4'];
+
+function spawnParticles() {
+  const container = document.getElementById('gulalParticles');
+  if (!holiMode || !running) return;
+  const p = document.createElement('div');
+  p.className = 'particle';
+  p.style.left = (segmentProgress * 100) + '%';
+  p.style.background = holiColors[Math.floor(Math.random() * holiColors.length)];
+  const size = 4 + Math.random() * 5;
+  p.style.width = size + 'px';
+  p.style.height = size + 'px';
+  p.style.animationDelay = Math.random() * 0.5 + 's';
+  p.style.animationDuration = (1 + Math.random()) + 's';
+  container.appendChild(p);
+  setTimeout(() => p.remove(), 2000);
+}
+
+setInterval(() => { if (running && holiMode) spawnParticles(); }, 200);
+
+// ====================== FORMAT ======================
+function fmtTime(s) {
+  const m = Math.floor(s/60), sec = Math.floor(s%60);
+  return m + ':' + String(sec).padStart(2,'0');
+}
+
+// ====================== SIMULATION ======================
+function toggleSim() {
+  if (!running) {
+    running = true;
+    document.getElementById('startBtn').textContent = '⏸ PAUSE';
+    lastTimestamp = null;
+    requestAnimationFrame(tick);
+  } else {
+    running = false;
+    document.getElementById('startBtn').textContent = '▶ RESUME';
+    if (animFrame) cancelAnimationFrame(animFrame);
+  }
+}
+
+function resetSim() {
+  running = false;
+  if (animFrame) cancelAnimationFrame(animFrame);
+  currentSegment = 0;
+  segmentProgress = 0;
+  segmentElapsed = 0;
+  totalElapsed = 0;
+  visitedStations = new Set([0]);
+  document.getElementById('startBtn').textContent = '▶ START SIMULATION';
+  updateUI();
+}
+
+function tick(timestamp) {
+  if (!running) return;
+  if (!lastTimestamp) lastTimestamp = timestamp;
+  const dt = (timestamp - lastTimestamp) / 1000 * simSpeed; // real seconds * speed
+  lastTimestamp = timestamp;
+
+  if (currentSegment >= TRAVEL_TIMES.length) {
+    running = false;
+    document.getElementById('startBtn').textContent = '✓ COMPLETE';
+    showToast('🏁 Reached Shiv Vihar — End of Pink Line');
+    return;
+  }
+
+  const segDuration = TRAVEL_TIMES[currentSegment];
+  segmentElapsed += dt;
+  totalElapsed += dt;
+  segmentProgress = Math.min(segmentElapsed / segDuration, 1);
+
+  if (segmentProgress >= 1) {
+    // Arrived at next station
+    currentSegment++;
+    segmentElapsed = 0;
+    segmentProgress = 0;
+    if (currentSegment <= STATIONS.length - 1) {
+      visitedStations.add(currentSegment);
+      showToast('📍 Arrived: ' + STATIONS[currentSegment].name);
+    }
+  }
+
+  updateUI();
+  animFrame = requestAnimationFrame(tick);
+}
+
+function updateUI() {
+  const seg = currentSegment;
+  const fromS = STATIONS[seg];
+  const toS = seg < STATIONS.length - 1 ? STATIONS[seg+1] : STATIONS[seg];
+  const pct = Math.round(segmentProgress * 100);
+
+  document.getElementById('rayFill').style.width = pct + '%';
+  document.getElementById('rayPercent').textContent = pct + '%';
+  document.getElementById('rayFrom').textContent = fromS.name.split(' ').slice(0,2).join(' ');
+  document.getElementById('rayTo').textContent = toS.name.split(' ').slice(0,2).join(' ');
+
+  document.getElementById('fromName').textContent = fromS.name;
+  document.getElementById('toName').textContent = toS.name;
+
+  const avgSpeedKmh = running ? (60 + Math.random() * 20) : 0;
+  const segDur = TRAVEL_TIMES[seg] || 120;
+  const distLeft = ((1 - segmentProgress) * segDur / 3600 * 80).toFixed(1);
+
+  document.getElementById('statDist').textContent = distLeft;
+  document.getElementById('statSpeed').textContent = running ? Math.round(avgSpeedKmh) : 0;
+
+  const remainSeg = (1 - segmentProgress) * segDur;
+  document.getElementById('statETA').textContent = fmtTime(remainSeg);
+  document.getElementById('timeElapsed').textContent = fmtTime(totalElapsed);
+  document.getElementById('timeRemain').textContent = fmtTime(remainSeg);
+  document.getElementById('timeTotal').textContent = fmtTime(segDur);
+
+  // Update station list highlighting
+  document.querySelectorAll('.station-item').forEach((el, i) => {
+    el.classList.remove('active','visited');
+    if (i === seg) el.classList.add('active');
+    else if (visitedStations.has(i)) el.classList.add('visited');
+  });
+
+  const activeEl = document.querySelector('.station-item.active');
+  if (activeEl) activeEl.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+
+  // Update the linear map
+  updateLinearMap();
+}
+
+// ====================== LINEAR MAP ======================
+const STATION_SPACING = 110; // px between each station — enough for labels
+const TRACK_Y_OFFSET = 0;    // track runs through vertical center of .linear-map
+const PAD_X = 60;            // left/right padding
+
+let mapContainer, trackLine, trackVisited, trackRay, trainHead;
+let nodeEls = [];
+
+function buildLinearMap() {
+  const wrap = document.getElementById('linearMap');
+  wrap.innerHTML = '';
+
+  const totalStations = STATIONS.length;
+  const totalWidth = PAD_X * 2 + (totalStations - 1) * STATION_SPACING;
+  wrap.style.width = totalWidth + 'px';
+  wrap.style.height = '320px';
+
+  // Track base
+  trackLine = document.createElement('div');
+  trackLine.className = 'track-line';
+  trackLine.style.left = PAD_X + 'px';
+  trackLine.style.right = PAD_X + 'px';
+  wrap.appendChild(trackLine);
+
+  // Visited overlay
+  trackVisited = document.createElement('div');
+  trackVisited.className = 'track-visited';
+  trackVisited.style.left = PAD_X + 'px';
+  trackVisited.style.width = '0px';
+  wrap.appendChild(trackVisited);
+
+  // Active ray
+  trackRay = document.createElement('div');
+  trackRay.className = 'track-ray ' + (holiMode ? 'holi' : 'normal');
+  trackRay.style.left = PAD_X + 'px';
+  trackRay.style.width = '0px';
+  wrap.appendChild(trackRay);
+
+  // Train head
+  trainHead = document.createElement('div');
+  trainHead.className = 'train-head ' + (holiMode ? 'holi' : 'normal');
+  trainHead.style.left = PAD_X + 'px';
+  wrap.appendChild(trainHead);
+
+  // Station nodes
+  nodeEls = [];
+  STATIONS.forEach((s, i) => {
+    const x = PAD_X + i * STATION_SPACING;
+    const above = (i % 2 === 0); // alternate labels above/below
+
+    const node = document.createElement('div');
+    node.className = 'station-node' + (i === 0 ? ' current' : '');
+    node.style.left = x + 'px';
+    node.style.top = '50%';
+    node.onclick = () => jumpTo(i);
+
+    const isInterchange = s.interchange.length > 0;
+
+    if (above) {
+      // Label above, tick, dot
+      node.innerHTML = `
+        <div class="node-label-above">
+          <div class="node-name">${s.name}</div>
+          <div class="node-num">${String(i+1).padStart(2,'0')}</div>
+        </div>
+        <div class="node-tick above"></div>
+        <div class="node-dot${isInterchange ? ' interchange' : ''}"></div>
+      `;
+    } else {
+      // Dot, tick, label below
+      node.innerHTML = `
+        <div class="node-dot${isInterchange ? ' interchange' : ''}"></div>
+        <div class="node-tick below"></div>
+        <div class="node-label-below">
+          <div class="node-num">${String(i+1).padStart(2,'0')}</div>
+          <div class="node-name">${s.name}</div>
+        </div>
+      `;
+    }
+
+    wrap.appendChild(node);
+    nodeEls.push(node);
+  });
+}
+
+function updateLinearMap() {
+  if (!trackVisited || !trackRay || !trainHead) return;
+
+  const seg = currentSegment;
+  const prog = segmentProgress;
+
+  // Pixel positions
+  const stationX = (i) => PAD_X + i * STATION_SPACING;
+
+  // Visited track: from station 0 to current station
+  const visitedPx = stationX(seg) - PAD_X;
+  trackVisited.style.width = visitedPx + 'px';
+
+  // Active ray: from current station → progress toward next
+  const rayStartPx = stationX(seg);
+  const rayEndPx = seg < STATIONS.length - 1
+    ? stationX(seg) + prog * STATION_SPACING
+    : stationX(seg);
+  const rayWidth = Math.max(0, rayEndPx - rayStartPx);
+
+  trackRay.style.left = rayStartPx + 'px';
+  trackRay.style.width = rayWidth + 'px';
+  trackRay.className = 'track-ray ' + (holiMode ? 'holi' : 'normal');
+
+  // Train head position
+  const headX = rayEndPx;
+  trainHead.style.left = headX + 'px';
+  trainHead.className = 'train-head ' + (holiMode ? 'holi' : 'normal');
+
+  // Station node states
+  nodeEls.forEach((el, i) => {
+    el.classList.remove('current', 'visited');
+    if (i === seg) el.classList.add('current');
+    else if (visitedStations.has(i)) el.classList.add('visited');
+  });
+
+  // Auto-scroll map to keep active station visible with some context
+  const mapWrap = document.querySelector('.map-scroll-wrap');
+  if (mapWrap) {
+    const targetScrollLeft = Math.max(0, headX - mapWrap.clientWidth / 2);
+    mapWrap.scrollTo({ left: targetScrollLeft, behavior: 'smooth' });
+  }
+
+  // Update focus card
+  const s = STATIONS[seg];
+  document.getElementById('focusNum').textContent = String(seg + 1).padStart(2, '0');
+  document.getElementById('focusName').textContent = s.name;
+  document.getElementById('focusHindi').textContent = s.hindi;
+
+  const segDur = TRAVEL_TIMES[seg] || 0;
+  const remain = Math.max(0, (1 - prog) * segDur);
+  document.getElementById('focusETA').textContent = seg < STATIONS.length - 1 ? fmtTime(remain) : '—';
+
+  const ic = document.getElementById('focusInterchange');
+  ic.innerHTML = s.interchange.length > 0
+    ? s.interchange.map(l => `<span class="interchange-badge">⇌ ${l} Line</span>`).join('')
+    : '<span style="font-size:10px;color:var(--text-dim);font-family:\'Space Mono\',monospace;letter-spacing:1px;">No interchange</span>';
+}
+
+// ====================== BUILD SIDEBAR STATION LIST ======================
+function buildStationList() {
+  const list = document.getElementById('stationList');
+  STATIONS.forEach((s, i) => {
+    const div = document.createElement('div');
+    div.className = 'station-item' + (i === 0 ? ' active' : '');
+    div.dataset.idx = i;
+    div.onclick = () => jumpTo(i);
+
+    const interchangeHtml = s.interchange.length > 0
+      ? s.interchange.map(l => `<span class="interchange-badge">⇌ ${l}</span>`).join('')
+      : '';
+
+    div.innerHTML = `
+      <div class="st-dot"></div>
+      <div class="st-info">
+        <div class="st-name">${s.name}</div>
+        <div class="st-hindi">${s.hindi}</div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px;">
+        <span class="st-num">${String(i+1).padStart(2,'0')}</span>
+        ${interchangeHtml}
+      </div>
+    `;
+    list.appendChild(div);
+  });
+}
+
+function jumpTo(idx) {
+  currentSegment = idx;
+  segmentProgress = 0;
+  segmentElapsed = 0;
+  for (let i = 0; i <= idx; i++) visitedStations.add(i);
+  updateUI();
+  showToast('📍 Jumped to: ' + STATIONS[idx].name);
+}
+
+// ====================== TOAST ======================
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// ====================== INIT ======================
+buildStationList();
+buildLinearMap();
+updateUI();
+
+// Animation loop: keep linear map updating for smooth ray motion
+function loop() {
+  if (running) updateLinearMap();
+  requestAnimationFrame(loop);
+}
+loop();
+</script>
+</body>
+</html>

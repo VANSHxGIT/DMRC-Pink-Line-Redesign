@@ -1,0 +1,371 @@
+
+<style>
+  h2.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap}
+  *{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --pk:#E91E8C;--pk2:#FF6BB5;--pk3:#C2185B;
+    --bg:#0C0B14;--bg2:#141220;--bg3:#1C1A2E;
+    --txt:#F2EEF8;--txt2:#A89EC0;--txt3:#6A6080;
+    --gold:#FFD166;--green:#3EE095;--blue:#38B6FF;--violet:#B44EFF;--red:#FF5454;
+  }
+  body{background:transparent}
+  .device{width:680px;margin:0 auto;background:var(--bg);border-radius:12px;overflow:hidden;font-family:'Space Grotesk',system-ui,sans-serif;border:1px solid rgba(255,255,255,0.07)}
+  .top-bar{background:var(--bg2);display:flex;align-items:center;justify-content:space-between;padding:9px 16px;border-bottom:1px solid rgba(255,255,255,0.06)}
+  .top-bar-left{display:flex;align-items:center;gap:10px}
+  .line-pill{background:var(--pk);color:#fff;font-size:10px;font-weight:700;letter-spacing:1.5px;padding:3px 9px;border-radius:4px}
+  .route-label{font-size:11px;color:var(--txt2);letter-spacing:0.5px}
+  .top-bar-right{display:flex;align-items:center;gap:14px}
+  .clock{font-size:13px;font-family:monospace;color:var(--txt);letter-spacing:2px}
+  .live-dot{width:6px;height:6px;border-radius:50%;background:#3EE095;animation:blink 1.4s ease-in-out infinite}
+  @keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
+
+  /* MAP ROW */
+  .map-row{padding:0;position:relative;overflow:hidden;height:168px;background:var(--bg)}
+  .map-scroll{overflow-x:auto;overflow-y:hidden;height:100%;scrollbar-width:none}
+  .map-scroll::-webkit-scrollbar{display:none}
+  .map-inner{position:relative;height:168px;flex-shrink:0}
+
+  /* Track */
+  .track-base{position:absolute;top:50%;height:4px;transform:translateY(-50%);border-radius:2px;background:rgba(233,30,140,0.12);z-index:1}
+  .track-done{position:absolute;top:50%;height:4px;transform:translateY(-50%);border-radius:2px;background:linear-gradient(90deg,var(--pk3),var(--pk));z-index:2;transition:width .08s linear}
+  .track-ray{position:absolute;top:50%;height:6px;transform:translateY(-50%);border-radius:3px;z-index:3;transition:left .05s linear,width .05s linear}
+  .track-ray.mode-pink{background:linear-gradient(90deg,var(--pk3),var(--pk),var(--pk2))}
+  .track-ray.mode-holi{background:linear-gradient(90deg,#FF3D3D,#FF9500,#FFE600,#00D084,#38B6FF,#B44EFF,#FF6BB5);background-size:300% 100%;animation:holiFlow 1.2s linear infinite}
+  @keyframes holiFlow{0%{background-position:0% 50%}100%{background-position:300% 50%}}
+  .train-head{position:absolute;top:50%;width:12px;height:12px;border-radius:50%;background:#fff;transform:translate(-50%,-50%);z-index:5;transition:left .05s linear}
+  .train-head.mode-pink{box-shadow:0 0 0 3px rgba(233,30,140,.35)}
+  .train-head.mode-holi{animation:holiHead .35s linear infinite}
+  @keyframes holiHead{0%{box-shadow:0 0 0 3px rgba(255,61,61,.5)}25%{box-shadow:0 0 0 3px rgba(255,230,0,.5)}50%{box-shadow:0 0 0 3px rgba(56,182,255,.5)}75%{box-shadow:0 0 0 3px rgba(180,78,255,.5)}100%{box-shadow:0 0 0 3px rgba(255,61,61,.5)}}
+
+  /* Station nodes */
+  .stn{position:absolute;top:50%;transform:translateX(-50%);z-index:4;cursor:pointer;display:flex;flex-direction:column;align-items:center}
+  .stn-dot{width:8px;height:8px;border-radius:50%;border:2px solid rgba(233,30,140,.35);background:var(--bg);flex-shrink:0;transition:all .2s}
+  .stn-dot.ic{width:10px;height:10px;border-radius:2px;transform:rotate(45deg);border-color:var(--gold);background:rgba(255,209,102,.1)}
+  .stn.visited .stn-dot{background:var(--pk);border-color:var(--pk)}
+  .stn.visited .stn-dot.ic{background:var(--gold);border-color:var(--gold)}
+  .stn.current .stn-dot{background:#fff;border-color:#fff;width:12px;height:12px;animation:curPulse 1s ease-in-out infinite}
+  .stn.current .stn-dot.ic{border-radius:2px}
+  @keyframes curPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.5)}}
+  .stn-tick{width:1px;background:rgba(233,30,140,.18);flex-shrink:0}
+  .stn-label{font-size:10px;color:var(--txt3);white-space:nowrap;line-height:1.2;text-align:center;max-width:76px;overflow:hidden;text-overflow:ellipsis;transition:color .2s}
+  .stn.visited .stn-label{color:var(--pk2)}
+  .stn.current .stn-label{color:#fff;font-size:10.5px;font-weight:500}
+  .stn-num{font-size:8.5px;color:rgba(150,130,170,.3);font-family:monospace}
+
+  /* BOTTOM INFO */
+  .bottom{display:grid;grid-template-columns:1fr 1fr 1fr;border-top:1px solid rgba(255,255,255,.06)}
+  .info-cell{padding:10px 14px;border-right:1px solid rgba(255,255,255,.06)}
+  .info-cell:last-child{border-right:none}
+  .info-label{font-size:9px;letter-spacing:1.5px;color:var(--txt3);margin-bottom:4px;text-transform:uppercase}
+  .info-val{font-size:15px;font-weight:600;color:var(--txt);font-family:monospace;letter-spacing:1px}
+  .info-val.accent{color:var(--pk2)}
+  .info-sub{font-size:9.5px;color:var(--txt3);margin-top:2px;font-family:system-ui}
+  .ic-badges{display:flex;gap:4px;flex-wrap:wrap;margin-top:3px}
+  .ic-badge{font-size:8.5px;padding:2px 6px;border-radius:3px;font-weight:600;letter-spacing:.5px}
+
+  /* PROGRESS BAR */
+  .progress-row{background:var(--bg2);padding:7px 16px;display:flex;align-items:center;gap:10px;border-top:1px solid rgba(255,255,255,.04)}
+  .prog-label{font-size:9px;letter-spacing:1.5px;color:var(--txt3);white-space:nowrap;flex-shrink:0;text-transform:uppercase}
+  .prog-track{flex:1;height:5px;background:rgba(255,255,255,.07);border-radius:3px;overflow:hidden}
+  .prog-fill{height:100%;border-radius:3px;transition:width .08s linear}
+  .prog-fill.mode-pink{background:linear-gradient(90deg,var(--pk3),var(--pk),var(--pk2))}
+  .prog-fill.mode-holi{background:linear-gradient(90deg,#FF3D3D,#FF9500,#FFE600,#00D084,#38B6FF,#B44EFF,#FF6BB5);background-size:300% 100%;animation:holiFlow 1.2s linear infinite}
+  .prog-pct{font-size:10px;font-family:monospace;color:var(--pk2);min-width:32px;text-align:right;flex-shrink:0}
+
+  /* CONTROLS */
+  .ctrl-row{background:var(--bg3);padding:8px 16px;display:flex;align-items:center;gap:8px;border-top:1px solid rgba(255,255,255,.05)}
+  .cbtn{font-size:10px;padding:4px 10px;border-radius:5px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.05);color:var(--txt2);cursor:pointer;letter-spacing:.5px;transition:all .15s}
+  .cbtn:hover{background:rgba(255,255,255,.1);color:var(--txt)}
+  .cbtn.primary{border-color:var(--pk);background:rgba(233,30,140,.12);color:var(--pk2)}
+  .cbtn.primary:hover{background:rgba(233,30,140,.22)}
+  .cbtn.on{border-color:var(--pk);background:rgba(233,30,140,.18);color:var(--pk2)}
+  .spd-grp{display:flex;gap:4px;margin-left:auto}
+  .spd{font-size:9.5px;padding:3px 7px;border-radius:4px;border:1px solid rgba(255,255,255,.1);background:transparent;color:var(--txt3);cursor:pointer;font-family:monospace}
+  .spd.on{border-color:rgba(233,30,140,.5);color:var(--pk2);background:rgba(233,30,140,.08)}
+</style>
+
+<h2 class="sr-only">Delhi Metro Pink Line miniature display — showing 38 stations from Majlis Park to Shiv Vihar with live train position and arrival times</h2>
+
+<div class="device">
+  <div class="top-bar">
+    <div class="top-bar-left">
+      <div class="line-pill">PINK LINE</div>
+      <span class="route-label">Majlis Park &rarr; Shiv Vihar</span>
+    </div>
+    <div class="top-bar-right">
+      <div class="live-dot" title="Live simulation"></div>
+      <div class="clock" id="clk">—</div>
+    </div>
+  </div>
+
+  <div class="map-row">
+    <div class="map-scroll" id="mapScroll">
+      <div class="map-inner" id="mapInner">
+        <div class="track-base" id="trkBase"></div>
+        <div class="track-done" id="trkDone"></div>
+        <div class="track-ray mode-pink" id="trkRay"></div>
+        <div class="train-head mode-pink" id="trainHead"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="progress-row">
+    <span class="prog-label">Segment</span>
+    <div class="prog-track"><div class="prog-fill mode-pink" id="progFill" style="width:0%"></div></div>
+    <span class="prog-pct" id="progPct">0%</span>
+    <span class="prog-label" id="progFrom" style="min-width:80px;text-align:right"></span>
+    <span style="color:var(--txt3);font-size:9px">→</span>
+    <span class="prog-label" id="progTo" style="min-width:80px;color:var(--pk2)"></span>
+  </div>
+
+  <div class="bottom">
+    <div class="info-cell">
+      <div class="info-label">Current station</div>
+      <div class="info-val" id="infoName" style="font-size:12px;font-family:system-ui;letter-spacing:0">Majlis Park</div>
+      <div class="info-sub" id="infoHindi">मजलिस पार्क</div>
+      <div class="ic-badges" id="infoBadges"></div>
+    </div>
+    <div class="info-cell">
+      <div class="info-label">Next station in</div>
+      <div class="info-val accent" id="infoETA">—</div>
+      <div class="info-sub" id="infoNext">—</div>
+    </div>
+    <div class="info-cell">
+      <div class="info-label">Journey</div>
+      <div class="info-val" id="infoElapsed">0:00</div>
+      <div class="info-sub" id="infoTotal">of ~75 min total</div>
+    </div>
+  </div>
+
+  <div class="ctrl-row">
+    <button class="cbtn primary" id="startBtn" onclick="toggleSim()">&#9654; Start</button>
+    <button class="cbtn" onclick="resetSim()">&#8635; Reset</button>
+    <button class="cbtn" id="holiBtn" onclick="toggleHoli()">&#127752; Holi mode</button>
+    <div class="spd-grp">
+      <span style="font-size:9px;color:var(--txt3);align-self:center;margin-right:2px">Speed</span>
+      <button class="spd" onclick="setSpd(1)">1x</button>
+      <button class="spd" onclick="setSpd(5)">5x</button>
+      <button class="spd on" onclick="setSpd(30)">30x</button>
+      <button class="spd" onclick="setSpd(60)">60x</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const STATIONS=[
+  {n:"Majlis Park",h:"मजलिस पार्क",ic:["Green"]},
+  {n:"Azadpur",h:"आज़ादपुर",ic:["Yellow","Green"]},
+  {n:"Shalimar Bagh",h:"शालीमार बाग",ic:[]},
+  {n:"Netaji Subhash Place",h:"नेताजी सुभाष प्लेस",ic:["Red"]},
+  {n:"Shakurpur",h:"शकूरपुर",ic:[]},
+  {n:"Punjabi Bagh West",h:"पंजाबी बाग पश्चिम",ic:[]},
+  {n:"ESI Hospital",h:"ई.एस.आई. अस्पताल",ic:[]},
+  {n:"Rajouri Garden",h:"राजौरी गार्डन",ic:["Blue"]},
+  {n:"Madipur",h:"मदीपुर",ic:[]},
+  {n:"Paschim Vihar West",h:"पश्चिम विहार पश्चिम",ic:[]},
+  {n:"Paschim Vihar East",h:"पश्चिम विहार पूर्व",ic:[]},
+  {n:"Peera Garhi",h:"पीरा गढ़ी",ic:[]},
+  {n:"Udyog Nagar",h:"उद्योग नगर",ic:[]},
+  {n:"Surajmal Stadium",h:"सूरजमल स्टेडियम",ic:[]},
+  {n:"Nangloi",h:"नांगलोई",ic:[]},
+  {n:"Nangloi Rly Stn",h:"नांगलोई रेलवे स्टेशन",ic:[]},
+  {n:"Rajdhani Park",h:"राजधानी पार्क",ic:[]},
+  {n:"Mundka Indl Area",h:"मुंडका औद्योगिक क्षेत्र",ic:[]},
+  {n:"Mundka",h:"मुंडका",ic:["Green"]},
+  {n:"Ghevra",h:"घेवरा",ic:[]},
+  {n:"Tikri Kalan",h:"टिकरी कलां",ic:[]},
+  {n:"Tikri Border",h:"टिकरी बॉर्डर",ic:[]},
+  {n:"Pt. Shree Ram Sharma",h:"पंडित श्री राम शर्मा",ic:[]},
+  {n:"Bahadurgarh City",h:"बहादुरगढ़ सिटी",ic:[]},
+  {n:"Brig. Hoshiyar Singh",h:"ब्रिगेडियर होशियार सिंह",ic:[]},
+  {n:"South Campus",h:"साउथ कैम्पस",ic:[]},
+  {n:"Lajpat Nagar",h:"लाजपत नगर",ic:["Violet"]},
+  {n:"Vinobapuri",h:"विनोबापुरी",ic:[]},
+  {n:"Ashram",h:"आश्रम",ic:[]},
+  {n:"Hazrat Nizamuddin",h:"हज़रत निज़ामुद्दीन",ic:[]},
+  {n:"Mayur Vihar-I",h:"मयूर विहार-I",ic:["Blue"]},
+  {n:"Trilokpuri Sanjay Lk",h:"त्रिलोकपुरी संजय झील",ic:[]},
+  {n:"E. Vinod Nagar–MV-II",h:"पूर्व विनोद नगर–मयूर विहार-II",ic:[]},
+  {n:"Mandawali–WVN",h:"मंडावली–पश्चिम विनोद नगर",ic:[]},
+  {n:"IP Extension",h:"आई.पी. एक्सटेंशन",ic:[]},
+  {n:"Anand Vihar",h:"आनंद विहार",ic:["Blue","Red"]},
+  {n:"Karkarduma",h:"कड़कड़ूमा",ic:[]},
+  {n:"Shiv Vihar",h:"शिव विहार",ic:[]}
+];
+
+const TT=[112,98,105,92,88,95,102,115,98,90,85,108,95,100,88,92,105,110,178,162,155,145,140,135,195,188,102,88,92,105,98,108,112,105,98,110,125];
+
+const IC_COLORS={Green:"#3EE095",Yellow:"#FFD166",Red:"#FF5454",Blue:"#38B6FF",Violet:"#B44EFF"};
+
+const GAP=90,PAD=44;
+let seg=0,prog=0,elapsed=0,segElapsed=0,running=false,holi=false,spd=30;
+let lastTs=null,rafId=null;
+const visited=new Set([0]);
+
+function totalW(){return PAD*2+(STATIONS.length-1)*GAP}
+function stX(i){return PAD+i*GAP}
+
+function buildMap(){
+  const inner=document.getElementById('mapInner');
+  const W=totalW();
+  inner.style.width=W+'px';
+  document.getElementById('trkBase').style.cssText+=`left:${PAD}px;width:${W-PAD*2}px`;
+
+  STATIONS.forEach((s,i)=>{
+    const x=stX(i);
+    const above=i%2===0;
+    const ic=s.ic.length>0;
+    const el=document.createElement('div');
+    el.className='stn'+(i===0?' current':'');
+    el.id='stn'+i;
+    el.style.cssText=`left:${x}px`;
+    el.onclick=()=>jumpTo(i);
+
+    const dotCls='stn-dot'+(ic?' ic':'');
+    const lbl=`<div class="stn-label">${s.n}</div><div class="stn-num">${String(i+1).padStart(2,'0')}</div>`;
+
+    if(above){
+      el.innerHTML=`<div style="display:flex;flex-direction:column;align-items:center;margin-bottom:6px">${lbl}</div><div class="stn-tick" style="height:22px"></div><div class="${dotCls}"></div>`;
+    } else {
+      el.innerHTML=`<div class="${dotCls}"></div><div class="stn-tick" style="height:22px"></div><div style="display:flex;flex-direction:column;align-items:center;margin-top:6px">${lbl}</div>`;
+    }
+    inner.appendChild(el);
+  });
+}
+
+function updateMap(){
+  const doneW=stX(seg)-PAD;
+  const el_done=document.getElementById('trkDone');
+  el_done.style.left=PAD+'px';
+  el_done.style.width=Math.max(0,doneW)+'px';
+
+  const rayStart=stX(seg);
+  const rayW=prog*GAP;
+  const el_ray=document.getElementById('trkRay');
+  el_ray.style.left=rayStart+'px';
+  el_ray.style.width=Math.max(0,rayW)+'px';
+  el_ray.className='track-ray mode-'+(holi?'holi':'pink');
+
+  const headX=rayStart+rayW;
+  const hd=document.getElementById('trainHead');
+  hd.style.left=headX+'px';
+  hd.className='train-head mode-'+(holi?'holi':'pink');
+
+  STATIONS.forEach((_,i)=>{
+    const el=document.getElementById('stn'+i);
+    if(!el)return;
+    el.classList.remove('current','visited');
+    if(i===seg)el.classList.add('current');
+    else if(visited.has(i))el.classList.add('visited');
+  });
+
+  const scroll=document.getElementById('mapScroll');
+  const target=Math.max(0,headX-scroll.clientWidth/2);
+  scroll.scrollTo({left:target,behavior:'smooth'});
+}
+
+function updateUI(){
+  const s=STATIONS[seg];
+  const segDur=TT[seg]||120;
+  const remain=Math.max(0,(1-prog)*segDur);
+  const next=seg<STATIONS.length-1?STATIONS[seg+1]:null;
+
+  document.getElementById('infoName').textContent=s.n;
+  document.getElementById('infoHindi').textContent=s.h;
+
+  const bd=document.getElementById('infoBadges');
+  bd.innerHTML=s.ic.map(l=>`<span class="ic-badge" style="background:${IC_COLORS[l]||'#888'}22;color:${IC_COLORS[l]||'#aaa'};border:1px solid ${IC_COLORS[l]||'#aaa'}44">${l}</span>`).join('');
+
+  document.getElementById('infoETA').textContent=next?fmtT(remain):'—';
+  document.getElementById('infoNext').textContent=next?next.n:'End of line';
+  document.getElementById('infoElapsed').textContent=fmtT(elapsed);
+
+  const pct=Math.round(prog*100);
+  document.getElementById('progFill').style.width=pct+'%';
+  document.getElementById('progPct').textContent=pct+'%';
+  const modeC='mode-'+(holi?'holi':'pink');
+  document.getElementById('progFill').className='prog-fill '+modeC;
+  document.getElementById('progFrom').textContent=s.n.split(' ').slice(0,2).join(' ');
+  document.getElementById('progTo').textContent=next?next.n.split(' ').slice(0,2).join(' '):'—';
+
+  // Show time to each upcoming station in their label (only next 3)
+  // Highlight next station
+  if(next){
+    const nextEl=document.getElementById('stn'+(seg+1));
+    if(nextEl){
+      const lbl=nextEl.querySelector('.stn-label');
+      if(lbl && !lbl.dataset.orig) lbl.dataset.orig=lbl.textContent;
+    }
+  }
+}
+
+function fmtT(s){const m=Math.floor(s/60),sc=Math.floor(s%60);return m+':'+String(sc).padStart(2,'0')}
+
+function tick(ts){
+  if(!running)return;
+  if(!lastTs)lastTs=ts;
+  const dt=(ts-lastTs)/1000*spd;
+  lastTs=ts;
+  const dur=TT[seg]||120;
+  segElapsed+=dt;
+  elapsed+=dt;
+  prog=Math.min(segElapsed/dur,1);
+  if(prog>=1){
+    seg++;segElapsed=0;prog=0;
+    if(seg>=STATIONS.length){running=false;document.getElementById('startBtn').textContent='✓ Done';return;}
+    visited.add(seg);
+  }
+  updateMap();updateUI();
+  rafId=requestAnimationFrame(tick);
+}
+
+function toggleSim(){
+  if(!running){
+    running=true;lastTs=null;
+    document.getElementById('startBtn').textContent='⏸ Pause';
+    rafId=requestAnimationFrame(tick);
+  } else {
+    running=false;
+    document.getElementById('startBtn').textContent='▶ Resume';
+    if(rafId)cancelAnimationFrame(rafId);
+  }
+}
+
+function resetSim(){
+  running=false;if(rafId)cancelAnimationFrame(rafId);
+  seg=0;prog=0;elapsed=0;segElapsed=0;lastTs=null;
+  visited.clear();visited.add(0);
+  document.getElementById('startBtn').textContent='▶ Start';
+  updateMap();updateUI();
+}
+
+function toggleHoli(){
+  holi=!holi;
+  document.getElementById('holiBtn').classList.toggle('on',holi);
+  updateMap();updateUI();
+}
+
+function setSpd(s){
+  spd=s;
+  document.querySelectorAll('.spd').forEach(b=>{b.classList.toggle('on',parseInt(b.textContent)===s)});
+}
+
+function jumpTo(i){
+  seg=i;prog=0;segElapsed=0;
+  for(let j=0;j<=i;j++)visited.add(j);
+  updateMap();updateUI();
+}
+
+function updateClock(){
+  const n=new Date(),h=String(n.getHours()).padStart(2,'0'),m=String(n.getMinutes()).padStart(2,'0'),s=String(n.getSeconds()).padStart(2,'0');
+  document.getElementById('clk').textContent=`${h}:${m}:${s}`;
+}
+
+// loop for animation even when not simulating (Holi ray keeps cycling via CSS)
+function loop(){updateClock();requestAnimationFrame(loop)}
+
+buildMap();
+updateMap();
+updateUI();
+requestAnimationFrame(loop);
+</script>
